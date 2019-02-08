@@ -32,6 +32,8 @@ unsigned long delaytime=500;
 int turn = 0;
 int playerXLocation = 0;
 int playerYLocation = 0;
+int gameEnded = 0;
+int gameTime = 120;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -58,32 +60,24 @@ void setup() {
 }
 
 void loop(){
-  setGameBoard();
-  drawBoard();
-  listenJoystick();
-  listenSelector();
-  changeTurn();
-  if (verifyVictory() == 1) {
-    showVictory();
+  if (gameEnded == 0) {
+    setGameBoard();
+    drawBoard();
+    listenJoystick();
+    listenSelector();
+    changeTurn();
+    if (verifyVictory() == 1) {
+      gameEnded = 1;
+      showVictory();
+    } else if (gameTime == 0) {
+      gameEnded = 1;
+      showDefeat();
+    }
+    gameTime--;
   }
+
 }
 
-
-/*
- * Matrix RGB
- */
-void drawBoard(){
-  int ledNumber = 0;
- for (int i = 0; i < 8; i++) {
-  for (int j = 0; j < 8; j++) {
-    uint32_t color = getStatus(i, j);
-    strip.setPixelColor(ledNumber, color);
-    ledNumber++;
-  } 
- }
-  strip.show();
-  delay(delaytime);  
-}
 
 void setGameBoard() {
  for (int i = 0; i < 8; i++) {
@@ -98,6 +92,22 @@ void setGameBoard() {
   }
  }
  board[playerXLocation][playerYLocation] = 3;
+}
+
+/*
+ * Matrix RGB
+ */
+void drawBoard(){
+  int ledNumber = 0;
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      uint32_t color = getStatus(i, j);
+      strip.setPixelColor(ledNumber, color);
+      ledNumber++;
+    } 
+  }
+  strip.show();
+  delay(delaytime);  
 }
 
 // return the status of a led (status and turn)
@@ -182,9 +192,13 @@ void buttonPressed() {
     buttonPressed = digitalRead(SW);
     delay(400);
   }
+  // If turn 3 = hit green
+  if (turn == 3) {
+    handleHit();
+  }
   delay(1000);
   turnOffLed();
-  // If turn 3 = hit green
+
 }
 
 void playerMove(char direction) {
@@ -199,15 +213,27 @@ void playerMove(char direction) {
   }
 }
 
-int verifyVictory() {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            if (boats[i][j] == 1) {
-                return 0;
-            }
-        }
-    }
-    return 1;
+
+void handleHit() {
+  int result = 0;
+  if (boats[playerXLocation][playerYLocation] == 3) {
+    boats[playerXLocation][playerYLocation] = 1;
+    showHitResult(3);
+  } else {
+    boats[playerXLocation][playerYLocation] = 2;
+    showHitResult(4);
+  }
+}
+
+//Show if the player hit a boat or juste water
+// 3 = boat / 4 = water
+void showHitResult(int result) {
+  for (int i = 0; i < 8; i++) {
+    setColor(result);
+    delay(100);
+    turnOffLed();
+    delay(100);
+  }
 }
 
 // place boats randomly on the board
@@ -220,26 +246,61 @@ void setupBoats() {
     xCoord = random(0, 8);
     yCoord = random(0, 8);
     if (boats[xCoord][yCoord] == 0) {
-      boats[xCoord][yCoord] = 1;
+      boats[xCoord][yCoord] = 3;
     } else {
       i--;
     }
   }
 }
 
+int verifyVictory() {
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (boats[i][j] == 3) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 void showVictory() {
- for (int i = 0; i < 8; i++) {
-  for (int j = 0; j < 8; j++) {
-    //lc.setLed(0, i, j, hf[i][j]); 
-  }
- }
+   int ledNumber = 0;
+   for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        uint32_t color;
+        if (hf[i][j] == 1) {
+          color = strip.Color(255, 0, 0);
+        } else {
+          color = strip.Color(0, 0, 0);
+        }
+        strip.setPixelColor(ledNumber, color);
+        ledNumber++;
+      } 
+   }
+}
+
+void showDefeat() {
+   int ledNumber = 0;
+   for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        uint32_t color;
+        if (sf[i][j] == 1) {
+          color = strip.Color(255, 0, 0);
+        } else {
+          color = strip.Color(0, 0, 0);
+        }
+        strip.setPixelColor(ledNumber, color);
+        ledNumber++;
+      } 
+   }
 }
 
 
 //Cette fonction prend trois arguments, l'un pour la luminosité des diodes rouges, vertes et bleues. 
 //Dans chaque cas, le nombre sera compris entre 0 et 255, ou 0 signifit off et 255 signifie une luminosité max.
 //La fonction appelle ensuite analogWrite pour régler la luminosité de chaque led.
- 
+ // 1 affiche du rouge; 2 du bleue; 3 du vert
 void setColor(int turn) {
   int red = 0;
   int blue = 0;
@@ -253,8 +314,11 @@ void setColor(int turn) {
     red = 255;
   } else if (turn == 2) {
     blue = 255;
+  } else if (turn == 3) {
+    green = 255;
   } else {
     green = 255;
+    red = 255;
   }
   analogWrite(redPin, red);
   analogWrite(greenPin, green);
