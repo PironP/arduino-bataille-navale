@@ -10,6 +10,27 @@ Arduino Project
 - RGB LED
 - 8 Digit with MAX7219 controller
 
+## Connection
+
+### RGB LED Matrix
+
+DIN : PIN 6
+
+### Joystick
+
+VRX : PIN A0
+
+VRY : PIN A1
+
+SW : PIN 4
+
+### RGB LED
+
+BLUE : PIN 9
+
+GREEN : PIN 10
+
+RED : PIN 11
 
 ## Library
 
