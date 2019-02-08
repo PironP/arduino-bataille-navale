@@ -1,11 +1,10 @@
-# Bataille Navale
+# Sea Battle
 
 Arduino Project
 
-
 ## Composants 
 
-- Arduino
+- Arduino Uno
 - Joystick
 - 8X8 RGB LED Matrix
 - RGB LED
@@ -15,16 +14,17 @@ Arduino Project
 ## Library
 
 DigitDisplay.h : https://github.com/ozhantr/DigitLedDisplay
+
 Adafruit_NeoPixel.h : https://github.com/adafruit/Adafruit_NeoPixel
 
 ## The Game
 
-Find the 10 mines the arduino place on the game board
+Find the 10 boats the computer hide on the game board
 
-Move with the joystick and click to choose a case
+Move with the joystick and click on it to choose a case
 
-Click when the LED is Green to shoot
+Click on the joystick when the LED is Green to shoot
 
-If you find a mine the case become Red, otherwise it become yellow
+If you find shoot a boat the case become Red, otherwise it become yellow
 
 You have a limited time so speed up :)
