@@ -2,7 +2,7 @@
 
 Arduino Project
 
-## Composants 
+## Componants
 
 - Arduino Uno
 - Joystick
@@ -31,6 +31,14 @@ BLUE : PIN 9
 GREEN : PIN 10
 
 RED : PIN 11
+
+### 8 Digit Display
+
+DIN : PIN 7
+
+CS : PIN 6
+
+CLOCK : PIN 5
 
 ## Library
 

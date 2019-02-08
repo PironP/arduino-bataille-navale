@@ -10,9 +10,19 @@
 
 #include "binary.h"
 #include <Adafruit_NeoPixel.h>
+#include <DigitLedDisplay.h>
 
 // Matrix RGB
-#define PIN 6
+#define PIN 8
+
+/* 
+ * 8 Digit display 
+ * DIN = 7 / CS = 6 / CLOCK = 5
+ */
+DigitLedDisplay digitDisplay = DigitLedDisplay(7, 6, 5); 
+int DIN_PIN = 7;
+int CS_PIN = 6;
+int CLK_PIN = 5;
 
 // Joystick
 const int VRx = 0; // Connect to Analog Pin 0
@@ -37,7 +47,7 @@ int playerYLocation = 0;
 
 // Variables to stop the game
 int gameEnded = 0;
-int gameTime = 120;
+long gameTime = 360;
 
 // Define the RGB Matrix
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
@@ -70,6 +80,9 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
   pinMode(SW, INPUT_PULLUP);
   digitalWrite(SW, HIGH);
+  digitDisplay.setBright(10);
+  digitDisplay.setDigitLimit(8);
+  Serial.begin(9600);
   setupBoats();
 }
 
@@ -83,6 +96,11 @@ void loop(){
     listenJoystick();
     listenSelector();
     changeTurn();
+
+//    digitDisplay.clear();
+//    delay(200);
+//    digitDisplay.printDigit(gameTime);
+    showDataOnDigitDisplay();
     if (verifyVictory() == 1) {
       gameEnded = 1;
       showVictory();
@@ -234,7 +252,6 @@ void buttonPressed() {
   int loopTurn = 0;
   setColor(1);
   delay(1000);
-  Serial.println(buttonPressed);
   while(buttonPressed == 1) {  
     turn ++;
     if (turn > 3) {
@@ -391,5 +408,27 @@ void turnOffLed() {
   analogWrite(redPin, 0);
   analogWrite(greenPin, 0);
   analogWrite(bluePin, 0); 
+}
+
+long boatsLeft() {
+  long boatsLeft = 0;
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      if (boats[i][j] == 3) {
+        boatsLeft++;
+      }
+    }
+  }
+  return boatsLeft;
+}
+
+void showDataOnDigitDisplay() {
+  long data = 0;
+  long boats = boatsLeft();
+  data = boats * 10000;
+  
+  data += gameTime;
+  Serial.println(data);
+  digitDisplay.printDigit(data);
 }
 
