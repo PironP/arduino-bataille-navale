@@ -1,3 +1,13 @@
+/***
+ * 
+ * Sea Battle
+ * Made By
+ *  - Prescilla Lecurieux
+ *  - Pierre Piron
+ *  
+ *  2019
+ */
+
 #include "binary.h"
 #include <Adafruit_NeoPixel.h>
 
@@ -172,6 +182,8 @@ void buttonPressed() {
     buttonPressed = digitalRead(SW);
     delay(400);
   }
+  delay(1000);
+  turnOffLed();
   // If turn 3 = hit green
 }
 
@@ -248,3 +260,10 @@ void setColor(int turn) {
   analogWrite(greenPin, green);
   analogWrite(bluePin, blue);  
 }
+
+void turnOffLed() {
+  analogWrite(redPin, 0);
+  analogWrite(greenPin, 0);
+  analogWrite(bluePin, 0); 
+}
+
