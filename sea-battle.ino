@@ -350,6 +350,7 @@ void showVictory() {
         ledNumber++;
       } 
    }
+   strip.show();
 }
 
 /*
@@ -369,6 +370,7 @@ void showDefeat() {
         ledNumber++;
       } 
    }
+   strip.show();
 }
 
 /*
